@@ -4,6 +4,7 @@ import { useInView } from '../hooks/useInView';
 import geminiImage from '../images/gemini.png';
 import pokemonImage from '../images/pokemon.png';
 import loanImage from '../images/loan calculator.png';
+import tunexImage from '../images/tunex.png'; // Assuming you have a Tunex image
 
 
 const Projects: React.FC = () => {
@@ -16,6 +17,16 @@ const Projects: React.FC = () => {
   const projects = [
     {
       id: 1,
+      title: 'Tunex - Full Stack Music Player',
+      category: 'Web Development',
+      image: tunexImage,
+      description: 'Built a full-stack music streaming platform using the MERN stack, featuring user authentication, music playback, playlists, and responsive UI. Integrated real-time audio control and dynamic content rendering for a seamless listening experience.',
+      technologies: ['React', 'TypeScript', 'Node.js', 'Express.js', 'MongoDB'],
+      demoLink: 'https://tunex.onrender.com',
+      codeLink: 'https://github.com/AbhishekSinhaa17/Tunex'
+    },
+    {
+      id: 2,
       title: 'AI-powered chatbot GeminiClone',
       category: 'Web Development',
       image: geminiImage,
@@ -25,7 +36,7 @@ const Projects: React.FC = () => {
       codeLink: 'https://github.com/AbhishekSinhaa17/Gemini-Clone'
     },
     {
-      id: 2,
+      id: 3,
       title: 'Pokemon Web App',
       category: 'Web Development',
       image: pokemonImage,
@@ -35,7 +46,7 @@ const Projects: React.FC = () => {
       codeLink: 'https://github.com/AbhishekSinhaa17/pokemon_webapp-main'
     },
     {
-      id: 3,
+      id: 4,
       title: ' Movie Recommender System',
       category: 'Web Development',
       image: 'https://user-images.githubusercontent.com/86877457/132905471-3ef27af4-ecc6-44bf-a47c-5ccf2250410c.jpg',
@@ -44,7 +55,7 @@ const Projects: React.FC = () => {
       codeLink: 'https://github.com/AbhishekSinhaa17/Movie-Recommender-System-master?tab=readme-ov-file'
     },
     {
-      id: 4,
+      id: 5,
       title: 'Loan Calculator App',
       category: 'UI/UX Design',
       image: loanImage,
@@ -53,16 +64,7 @@ const Projects: React.FC = () => {
       demoLink: 'https://loan-calculator-92qor3bk7-abhishek-sinhas-projects-67ef53a1.vercel.app/',
       codeLink: 'https://github.com/AbhishekSinhaa17/Loan-Calculator-App/tree/main/loan-calculator'
     },
-    // {
-    //   id: 5,
-    //   title: 'Banking App Redesign',
-    //   category: 'UI/UX Design',
-    //   image: 'https://images.pexels.com/photos/3943716/pexels-photo-3943716.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    //   description: 'A complete redesign of a banking application, focusing on improved user experience, accessibility, and modern visual design.',
-    //   technologies: ['Figma', 'Prototyping', 'User Testing'],
-    //   demoLink: '#',
-    //   codeLink: '#'
-    // },
+
     // {
     //   id: 6,
     //   title: 'Task Management App',

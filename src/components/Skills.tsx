@@ -19,7 +19,7 @@ const Skills: React.FC = () => {
 
   const technologies = [
     'Redux', 'REST APIs', 'Git','Github', 'MongoDB', 
-    'MYSQL', 'Visual Code Studio', 'Juypter Notebook', 'Vercel', 'Render', 'Vite'
+    'MYSQL', 'Visual Code Studio', 'Juypter Notebook','JWT','Firebase','Postman', 'Vercel', 'Render', 'Vite'
   ];
 
   return (

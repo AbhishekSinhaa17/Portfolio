@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useInView } from '../hooks/useInView';
 
 /* ── animated counter ──────────────────────────────────────── */
@@ -34,22 +34,19 @@ const CircularSkill: React.FC<{
   return (
     <div
       className={`group relative flex flex-col items-center transition-all duration-700 ${
-        inView ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-90'
+        inView
+          ? 'translate-y-0 opacity-100 scale-100'
+          : 'translate-y-10 opacity-0 scale-90'
       }`}
       style={{ transitionDelay: `${index * 120}ms` }}
     >
-      {/* glass card */}
       <div className="relative p-5 rounded-2xl bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:border-blue-400/50 dark:hover:border-blue-500/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/10 w-full">
-        {/* hover glow */}
         <div
           className={`absolute -inset-[1px] rounded-2xl bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-sm`}
         />
-
         <div className="relative flex flex-col items-center">
-          {/* SVG ring */}
           <div className="relative w-24 h-24 mb-3">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              {/* track */}
               <circle
                 cx="50"
                 cy="50"
@@ -58,7 +55,6 @@ const CircularSkill: React.FC<{
                 className="stroke-gray-200 dark:stroke-gray-700"
                 strokeWidth="6"
               />
-              {/* progress */}
               <circle
                 cx="50"
                 cy="50"
@@ -72,21 +68,25 @@ const CircularSkill: React.FC<{
                 className="transition-all duration-[1800ms] ease-out"
               />
               <defs>
-                <linearGradient id={`grad-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient
+                  id={`grad-${index}`}
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
                   <stop offset="0%" stopColor="#3b82f6" />
                   <stop offset="50%" stopColor="#a855f7" />
                   <stop offset="100%" stopColor="#14b8a6" />
                 </linearGradient>
               </defs>
             </svg>
-            {/* center text */}
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-xl font-extrabold bg-gradient-to-r from-blue-600 to-teal-400 bg-clip-text text-transparent">
                 {count}%
               </span>
             </div>
           </div>
-
           <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
             {name}
           </h4>
@@ -121,14 +121,14 @@ const SkillBar: React.FC<{
         </span>
       </div>
       <div className="relative w-full h-3 bg-gray-200/80 dark:bg-gray-700/80 rounded-full overflow-hidden">
-        {/* animated shimmer on track */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        {/* fill */}
         <div
           className="h-full rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-teal-400 transition-all duration-[1800ms] ease-out relative overflow-hidden"
-          style={{ width: inView ? `${level}%` : '0%', transitionDelay: `${index * 100}ms` }}
+          style={{
+            width: inView ? `${level}%` : '0%',
+            transitionDelay: `${index * 100}ms`,
+          }}
         >
-          {/* inner shimmer */}
           <div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent"
             style={{ animation: 'shimmer 2.5s ease-in-out infinite' }}
@@ -139,7 +139,7 @@ const SkillBar: React.FC<{
   );
 };
 
-/* ── tech badge with icon dot ──────────────────────────────── */
+/* ── tech badge ────────────────────────────────────────────── */
 const TechBadge: React.FC<{
   name: string;
   index: number;
@@ -161,7 +161,7 @@ const TechBadge: React.FC<{
   </span>
 );
 
-/* ── main component ────────────────────────────────────────── */
+/* ── main skills component ─────────────────────────────────── */
 const Skills: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { threshold: 0.1 });
@@ -175,47 +175,45 @@ const Skills: React.FC = () => {
     { name: 'Express.js', level: 85, gradient: 'from-gray-600 to-gray-400' },
   ];
 
+  // ── SECOND TIER: Horizontal progress bars ──
   const barSkills = [
     { name: 'HTML5', level: 95 },
-    { name: 'CSS / Tailwind CSS', level: 92 },
+    { name: 'CSS', level: 92 },
+    { name: 'Tailwind CSS', level: 90 },
     { name: 'Data Structures & Algorithms', level: 85 },
-    { name: 'DBMS', level: 80 },
+    { name: 'OOP', level: 85 },
     { name: 'REST APIs', level: 88 },
-    { name: 'Authentication / JWT', level: 82 },
+    { name: 'Authentication & Authorization', level: 82 },
+    { name: 'JWT', level: 80 },
   ];
 
+  // ── THIRD TIER: Badge categories (all remaining tech) ──
   const techCategories = [
     {
-      title: 'State & Tooling',
-      color: 'from-blue-500 to-purple-500',
-      techs: ['Redux', 'Vite', 'npm'],
+      title: 'Frontend Ecosystem',
+      color: 'from-blue-500 to-cyan-500',
+      techs: ['Redux', 'Vite'],
+    },
+    {
+      title: 'Backend & Real‑time',
+      color: 'from-green-500 to-teal-500',
+      techs: ['Supabase', 'Socket.io'],
     },
     {
       title: 'Databases',
-      color: 'from-green-500 to-teal-500',
-      techs: ['MongoDB', 'MySQL', 'PostgreSQL', 'Supabase'],
-    },
-    {
-      title: 'DevOps & Platforms',
-      color: 'from-orange-500 to-red-500',
-      techs: ['Git', 'GitHub', 'Vercel', 'Render', 'Cloudinary'],
-    },
-    {
-      title: 'Dev Tools',
       color: 'from-purple-500 to-pink-500',
-      techs: ['VS Code', 'Postman', 'Jupyter Notebook', 'Firebase'],
+      techs: ['MongoDB', 'MySQL', 'PostgreSQL'],
     },
     {
-      title: 'Real‑time',
-      color: 'from-teal-500 to-cyan-500',
-      techs: ['Socket.io', 'WebSockets'],
+      title: 'Tools & Platforms',
+      color: 'from-orange-500 to-red-500',
+      techs: ['Git', 'GitHub', 'Postman', 'npm', 'Vercel', 'Render', 'Cloudinary'],
     },
   ];
 
   const languages = [
     { name: 'English', level: 'Fluent', flag: '🇬🇧' },
     { name: 'Hindi', level: 'Native', flag: '🇮🇳' },
-    { name: 'Kannada', level: 'Conversational', flag: '🏳️' },
   ];
 
   return (
@@ -239,19 +237,9 @@ const Skills: React.FC = () => {
           0%   { transform: translateX(-100%); }
           100% { transform: translateX(200%); }
         }
-        @keyframes pulse-ring {
-          0%   { transform: scale(1); opacity: 0.5; }
-          70%  { transform: scale(1.5); opacity: 0; }
-          100% { transform: scale(1); opacity: 0; }
-        }
         @keyframes spin-slow {
           0%   { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
-        }
-        .glass-card {
-          background: rgba(255,255,255,0.06);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
         }
       `}</style>
 
@@ -275,7 +263,6 @@ const Skills: React.FC = () => {
             style={{ animation: 'blob 13s ease-in-out infinite 5s' }}
           />
 
-          {/* grid */}
           <div
             className="absolute inset-0 opacity-[0.025] dark:opacity-[0.035]"
             style={{
@@ -285,7 +272,6 @@ const Skills: React.FC = () => {
             }}
           />
 
-          {/* floating dots */}
           {[...Array(7)].map((_, i) => (
             <div
               key={i}
@@ -295,12 +281,13 @@ const Skills: React.FC = () => {
                 height: `${3 + (i % 3) * 3}px`,
                 top: `${8 + i * 13}%`,
                 right: `${5 + i * 11}%`,
-                animation: `${i % 2 === 0 ? 'float' : 'float-reverse'} ${3 + i * 0.8}s ease-in-out infinite`,
+                animation: `${
+                  i % 2 === 0 ? 'float' : 'float-reverse'
+                } ${3 + i * 0.8}s ease-in-out infinite`,
               }}
             />
           ))}
 
-          {/* decorative spinning ring */}
           <div
             className="absolute top-20 right-20 w-40 h-40 border border-dashed border-blue-300/20 dark:border-blue-500/10 rounded-full"
             style={{ animation: 'spin-slow 30s linear infinite' }}
@@ -315,7 +302,9 @@ const Skills: React.FC = () => {
           {/* ── section header ── */}
           <div
             className={`text-center mb-20 transition-all duration-700 ${
-              isInView ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'
+              isInView
+                ? 'translate-y-0 opacity-100'
+                : '-translate-y-10 opacity-0'
             }`}
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 mb-5 text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full bg-purple-100/80 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border border-purple-200/50 dark:border-purple-800/50">
@@ -328,7 +317,11 @@ const Skills: React.FC = () => {
                 <span className="bg-gradient-to-r from-blue-600 via-purple-500 to-teal-400 bg-clip-text text-transparent">
                   Skills
                 </span>
-                <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 120 8" fill="none">
+                <svg
+                  className="absolute -bottom-2 left-0 w-full"
+                  viewBox="0 0 120 8"
+                  fill="none"
+                >
                   <path
                     d="M2 6c20-4 40-4 58-2s38 2 58-2"
                     stroke="url(#skills-ug)"
@@ -336,7 +329,14 @@ const Skills: React.FC = () => {
                     strokeLinecap="round"
                   />
                   <defs>
-                    <linearGradient id="skills-ug" x1="0" y1="0" x2="120" y2="0" gradientUnits="userSpaceOnUse">
+                    <linearGradient
+                      id="skills-ug"
+                      x1="0"
+                      y1="0"
+                      x2="120"
+                      y2="0"
+                      gradientUnits="userSpaceOnUse"
+                    >
                       <stop stopColor="#3b82f6" />
                       <stop offset=".5" stopColor="#a855f7" />
                       <stop offset="1" stopColor="#14b8a6" />
@@ -347,15 +347,22 @@ const Skills: React.FC = () => {
             </h2>
             <p className="mt-6 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
               A fresher with hands‑on project experience across the{' '}
-              <span className="font-semibold text-blue-600 dark:text-blue-400">full stack</span>.
-              Here's every tool in my arsenal.
+              <span className="font-semibold text-blue-600 dark:text-blue-400">
+                full stack
+              </span>
+              . Here's every tool in my arsenal.
             </p>
           </div>
 
-          {/* ── circular skill rings ── */}
+          {/* ── TIER 1: Circular skill rings ──
+              Languages: JavaScript, TypeScript, C++
+              Core Framework/Runtime: React.js, Node.js, Express.js
+          */}
           <div
             className={`mb-20 transition-all duration-700 delay-100 ${
-              isInView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              isInView
+                ? 'translate-y-0 opacity-100'
+                : 'translate-y-10 opacity-0'
             }`}
           >
             <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-gray-500 dark:text-gray-400 mb-8 flex items-center gap-2 justify-center">
@@ -365,14 +372,23 @@ const Skills: React.FC = () => {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
               {coreSkills.map((skill, i) => (
-                <CircularSkill key={skill.name} {...skill} index={i} inView={isInView} />
+                <CircularSkill
+                  key={skill.name}
+                  {...skill}
+                  index={i}
+                  inView={isInView}
+                />
               ))}
             </div>
           </div>
 
-          {/* ── two‑column: bars + tech badges ── */}
+          {/* ── two‑column layout ── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* left — bar skills */}
+            {/* ── LEFT: Progress bars ──
+                Frontend: HTML5, CSS, Tailwind CSS
+                Backend: REST APIs, JWT
+                Concepts: DSA, OOP, Authentication & Authorization
+            */}
             <div>
               <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-gray-500 dark:text-gray-400 mb-8 flex items-center gap-2">
                 <span className="w-8 h-[2px] bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
@@ -380,26 +396,35 @@ const Skills: React.FC = () => {
               </h3>
               <div className="space-y-6">
                 {barSkills.map((skill, i) => (
-                  <SkillBar key={skill.name} {...skill} index={i} inView={isInView} />
+                  <SkillBar
+                    key={skill.name}
+                    {...skill}
+                    index={i}
+                    inView={isInView}
+                  />
                 ))}
               </div>
 
-              {/* languages section */}
+              {/* Languages spoken */}
               <div
                 className={`mt-12 transition-all duration-700 delay-[900ms] ${
-                  isInView ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+                  isInView
+                    ? 'translate-y-0 opacity-100'
+                    : 'translate-y-8 opacity-0'
                 }`}
               >
                 <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-gray-500 dark:text-gray-400 mb-5 flex items-center gap-2">
                   <span className="w-8 h-[2px] bg-gradient-to-r from-teal-500 to-blue-500 rounded-full" />
-                  Languages
+                  Languages I Speak
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {languages.map((lang, i) => (
                     <div
                       key={lang.name}
                       className={`group flex items-center gap-3 px-5 py-3 rounded-xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:border-blue-400/50 dark:hover:border-blue-500/50 transition-all duration-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 ${
-                        isInView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                        isInView
+                          ? 'translate-y-0 opacity-100'
+                          : 'translate-y-6 opacity-0'
                       }`}
                       style={{ transitionDelay: `${1000 + i * 120}ms` }}
                     >
@@ -408,7 +433,9 @@ const Skills: React.FC = () => {
                         <p className="font-semibold text-sm text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {lang.name}
                         </p>
-                        <p className="text-[11px] text-gray-500 dark:text-gray-400">{lang.level}</p>
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                          {lang.level}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -416,7 +443,12 @@ const Skills: React.FC = () => {
               </div>
             </div>
 
-            {/* right — tech badges by category */}
+            {/* ── RIGHT: Tech badges ──
+                Frontend: Redux, Vite
+                Backend: Supabase, Socket.io
+                Databases: MongoDB, MySQL, PostgreSQL
+                Tools: Git, GitHub, Postman, npm, Vercel, Render, Cloudinary
+            */}
             <div>
               <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-gray-500 dark:text-gray-400 mb-8 flex items-center gap-2">
                 <span className="w-8 h-[2px] bg-gradient-to-r from-purple-500 to-teal-500 rounded-full" />
@@ -427,7 +459,9 @@ const Skills: React.FC = () => {
                   <div
                     key={cat.title}
                     className={`transition-all duration-700 ${
-                      isInView ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+                      isInView
+                        ? 'translate-y-0 opacity-100'
+                        : 'translate-y-8 opacity-0'
                     }`}
                     style={{ transitionDelay: `${400 + catIdx * 150}ms` }}
                   >
@@ -451,18 +485,22 @@ const Skills: React.FC = () => {
                 ))}
               </div>
 
-              {/* bonus: "Currently Learning" floating card */}
+              {/* ── Complete Stack Verification Card ── */}
               <div
-                className={`mt-10 transition-all duration-700 delay-[1200ms] ${
-                  isInView ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+                className={`mt-10 transition-all duration-700 delay-[1000ms] ${
+                  isInView
+                    ? 'translate-y-0 opacity-100'
+                    : 'translate-y-8 opacity-0'
                 }`}
               >
                 <div className="relative group p-[1.5px] rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-teal-400 overflow-hidden">
                   <div className="rounded-2xl bg-white dark:bg-gray-900 p-6">
                     <div className="flex items-start gap-4">
                       <div
-                        className="text-3xl"
-                        style={{ animation: 'float 4s ease-in-out infinite' }}
+                        className="text-3xl flex-shrink-0"
+                        style={{
+                          animation: 'float 4s ease-in-out infinite',
+                        }}
                       >
                         🌱
                       </div>
@@ -471,18 +509,21 @@ const Skills: React.FC = () => {
                           Currently Exploring
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                          Next.js, Docker, System Design, and AWS fundamentals — always
-                          expanding my toolkit to build better, scalable products.
+                          Next.js, Docker, System Design, and AWS fundamentals
+                          — always expanding my toolkit to build better,
+                          scalable products.
                         </p>
                         <div className="flex flex-wrap gap-2 mt-3">
-                          {['Next.js', 'Docker', 'AWS', 'System Design'].map((t) => (
-                            <span
-                              key={t}
-                              className="px-3 py-1 rounded-full text-[11px] font-semibold bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/50"
-                            >
-                              {t}
-                            </span>
-                          ))}
+                          {['Next.js', 'Docker', 'AWS', 'System Design'].map(
+                            (t) => (
+                              <span
+                                key={t}
+                                className="px-3 py-1 rounded-full text-[11px] font-semibold bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/50"
+                              >
+                                {t}
+                              </span>
+                            ),
+                          )}
                         </div>
                       </div>
                     </div>
@@ -492,17 +533,19 @@ const Skills: React.FC = () => {
             </div>
           </div>
 
-          {/* ── bottom decoration: floating stat strip ── */}
+          {/* ── bottom stat strip ── */}
           <div
             className={`mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-700 delay-[1400ms] ${
-              isInView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              isInView
+                ? 'translate-y-0 opacity-100'
+                : 'translate-y-10 opacity-0'
             }`}
           >
             {[
               { icon: '⚡', label: 'Technologies', value: '20+' },
               { icon: '🚀', label: 'Projects Built', value: '8+' },
               { icon: '📦', label: 'npm Packages Used', value: '50+' },
-              { icon: '☕', label: 'Cups of Coffee', value: '∞' },
+              { icon: '☕', label: 'Cups of Chai', value: '∞' },
             ].map((stat, i) => (
               <div
                 key={stat.label}
@@ -510,7 +553,9 @@ const Skills: React.FC = () => {
               >
                 <span
                   className="text-2xl block mb-2"
-                  style={{ animation: `float ${3 + i * 0.5}s ease-in-out infinite` }}
+                  style={{
+                    animation: `float ${3 + i * 0.5}s ease-in-out infinite`,
+                  }}
                 >
                   {stat.icon}
                 </span>

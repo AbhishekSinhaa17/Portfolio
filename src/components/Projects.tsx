@@ -206,7 +206,7 @@ const Projects: React.FC = () => {
       description:
         'Built a full-stack music streaming platform using the MERN stack, featuring user authentication, music playback, playlists, and responsive UI. Integrated real-time audio control and dynamic content rendering for a seamless listening experience.',
       technologies: ['React', 'TypeScript', 'Node.js', 'Express.js', 'MongoDB'],
-      demoLink: 'https://tunex.onrender.com',
+      demoLink: 'https://tunex-rsmw.vercel.app/',
       codeLink: 'https://github.com/AbhishekSinhaa17/Tunex',
       gradient: 'from-violet-600 via-purple-600 to-indigo-600',
       accent: '#7c3aed',

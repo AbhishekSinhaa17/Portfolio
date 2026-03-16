@@ -5,6 +5,7 @@ import geminiImage from '../images/gemini.png';
 import pokemonImage from '../images/pokemon.png';
 import loanImage from '../images/loan calculator.png';
 import tunexImage from '../images/tunex.png'; // Assuming you have a Tunex image
+import hirehubImage from '../images/hirehub.png';
 
 
 const Projects: React.FC = () => {
@@ -27,6 +28,16 @@ const Projects: React.FC = () => {
     },
     {
       id: 2,
+      title: 'HireHub - Full-Stack Job Board & Applicant Tracking System',
+      category: 'Web Development',
+      image: hirehubImage,
+      description: 'A full-stack job portal and applicant tracking system built with React, TypeScript, and Supabase, enabling role-based job management, candidate tracking pipelines, and secure authentication.',
+      technologies: ['React+vite', 'TypeScript', 'Supabase', 'Tailwind CSS', 'shadcn/ui'],
+      demoLink: 'https://hirehub-blue.vercel.app/',
+      codeLink: 'https://github.com/AbhishekSinhaa17/HireHub'
+    },
+    {
+      id: 3,
       title: 'AI-powered chatbot GeminiClone',
       category: 'Web Development',
       image: geminiImage,
@@ -36,7 +47,7 @@ const Projects: React.FC = () => {
       codeLink: 'https://github.com/AbhishekSinhaa17/Gemini-Clone'
     },
     {
-      id: 3,
+      id: 4,
       title: 'Pokemon Web App',
       category: 'Web Development',
       image: pokemonImage,
@@ -46,7 +57,7 @@ const Projects: React.FC = () => {
       codeLink: 'https://github.com/AbhishekSinhaa17/pokemon_webapp-main'
     },
     {
-      id: 4,
+      id: 5,
       title: ' Movie Recommender System',
       category: 'Web Development',
       image: 'https://user-images.githubusercontent.com/86877457/132905471-3ef27af4-ecc6-44bf-a47c-5ccf2250410c.jpg',
@@ -55,7 +66,7 @@ const Projects: React.FC = () => {
       codeLink: 'https://github.com/AbhishekSinhaa17/Movie-Recommender-System-master?tab=readme-ov-file'
     },
     {
-      id: 5,
+      id: 6,
       title: 'Loan Calculator App',
       category: 'UI/UX Design',
       image: loanImage,

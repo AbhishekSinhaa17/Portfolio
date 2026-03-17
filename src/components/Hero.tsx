@@ -7,7 +7,6 @@ import {
   Download,
   ChevronRight,
   Rocket,
-  Zap,
   Coffee,
   Terminal,
   Code2,
@@ -17,15 +16,19 @@ import {
 
 /* ═══════════════════════════════════════════════════════════════
    INTERACTIVE WIREFRAME GLOBE
-   
-   Fibonacci-sphere point distribution, depth-aware rendering,
-   cursor-reactive rotation, gradient coloring (cyan→violet→fuchsia),
-   proximity glow on hover, atmospheric halo.
    ═══════════════════════════════════════════════════════════════ */
-const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
+const InteractiveGlobe: React.FC<{ isVisible: boolean; isDark: boolean }> = ({
+  isVisible,
+  isDark,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
   const canvasMouse = useRef({ x: -999, y: -999 });
+  const isDarkRef = useRef(isDark);
+
+  useEffect(() => {
+    isDarkRef.current = isDark;
+  }, [isDark]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -50,17 +53,22 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
     const conns: [number, number][] = [];
     for (let i = 0; i < N; i++)
       for (let j = i + 1; j < N; j++) {
-        const a = pts[i], b = pts[j];
+        const a = pts[i],
+          b = pts[j];
         const d = Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
         if (d < 0.38) conns.push([i, j]);
       }
 
     const render = () => {
       time += 0.002;
+      const dark = isDarkRef.current;
       const dpr = devicePixelRatio || 1;
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
-      if (!w || !h) { raf = requestAnimationFrame(render); return; }
+      if (!w || !h) {
+        raf = requestAnimationFrame(render);
+        return;
+      }
       if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
         canvas.width = w * dpr;
         canvas.height = h * dpr;
@@ -68,13 +76,17 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      const cx = w / 2, cy = h / 2;
+      const cx = w / 2,
+        cy = h / 2;
       const R = Math.min(w, h) * 0.4;
       const mx = (mouseRef.current.x - 0.5) * 0.8;
       const my = (mouseRef.current.y - 0.5) * 0.5;
-      const ry = time + mx, rx = 0.3 + my;
-      const cY = Math.cos(ry), sY = Math.sin(ry);
-      const cX = Math.cos(rx), sX = Math.sin(rx);
+      const ry = time + mx,
+        rx = 0.3 + my;
+      const cY = Math.cos(ry),
+        sY = Math.sin(ry);
+      const cX = Math.cos(rx),
+        sX = Math.sin(rx);
 
       const cmx = canvasMouse.current.x * w;
       const cmy = canvasMouse.current.y * h;
@@ -85,7 +97,8 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
         const y1 = p.y * cX - z1 * sX;
         const z2 = p.y * sX + z1 * cX;
         const depth = (z2 + 1) / 2;
-        const sx = cx + x1 * R, sy = cy + y1 * R;
+        const sx = cx + x1 * R,
+          sy = cy + y1 * R;
         const distCur = Math.hypot(sx - cmx, sy - cmy);
         const hl = distCur < 70 ? (70 - distCur) / 70 : 0;
         return { sx, sy, depth, oy: p.y, hl };
@@ -93,9 +106,10 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
       // Atmosphere
       const ag = ctx.createRadialGradient(cx, cy, R * 0.7, cx, cy, R * 1.25);
-      ag.addColorStop(0, 'rgba(139,92,246,0)');
-      ag.addColorStop(0.6, 'rgba(139,92,246,0.02)');
-      ag.addColorStop(1, 'rgba(139,92,246,0)');
+      const atmAlpha = dark ? 0.02 : 0.04;
+      ag.addColorStop(0, `rgba(139,92,246,0)`);
+      ag.addColorStop(0.6, `rgba(139,92,246,${atmAlpha})`);
+      ag.addColorStop(1, `rgba(139,92,246,0)`);
       ctx.fillStyle = ag;
       ctx.beginPath();
       ctx.arc(cx, cy, R * 1.25, 0, Math.PI * 2);
@@ -103,17 +117,21 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
       // Connections
       for (const [i, j] of conns) {
-        const a = proj[i], b = proj[j];
+        const a = proj[i],
+          b = proj[j];
         const md = Math.min(a.depth, b.depth);
         if (md < 0.15) continue;
         const avgY = (a.oy + b.oy) / 2;
         const hue = 290 - ((avgY + 1) / 2) * 100;
         const maxHl = Math.max(a.hl, b.hl);
-        const alpha = md * md * (0.18 + maxHl * 0.4);
+        const baseAlpha = dark ? 0.18 : 0.25;
+        const alpha = md * md * (baseAlpha + maxHl * 0.4);
+        const lightness = dark ? 60 + maxHl * 15 : 45 + maxHl * 10;
+        const sat = dark ? 65 : 75;
         ctx.beginPath();
         ctx.moveTo(a.sx, a.sy);
         ctx.lineTo(b.sx, b.sy);
-        ctx.strokeStyle = `hsla(${hue},65%,${60 + maxHl * 15}%,${alpha})`;
+        ctx.strokeStyle = `hsla(${hue},${sat}%,${lightness}%,${alpha})`;
         ctx.lineWidth = 0.5 + maxHl * 0.8;
         ctx.stroke();
       }
@@ -122,16 +140,22 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
       for (const p of proj) {
         if (p.depth < 0.08) continue;
         const hue = 290 - ((p.oy + 1) / 2) * 100;
-        const alpha = p.depth * p.depth * (0.7 + p.hl * 0.5);
+        const baseAlpha = dark ? 0.7 : 0.85;
+        const alpha = p.depth * p.depth * (baseAlpha + p.hl * 0.5);
+        const lightness = dark ? 68 + p.hl * 15 : 50 + p.hl * 10;
+        const sat = dark ? 65 : 80;
         const sz = 0.6 + p.depth * 1.8 + p.hl * 3;
         ctx.beginPath();
         ctx.arc(p.sx, p.sy, sz, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${hue},65%,${68 + p.hl * 15}%,${alpha})`;
+        ctx.fillStyle = `hsla(${hue},${sat}%,${lightness}%,${alpha})`;
         ctx.fill();
         if (p.depth > 0.6 || p.hl > 0.3) {
           ctx.beginPath();
           ctx.arc(p.sx, p.sy, sz * (3 + p.hl * 4), 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(${hue},65%,60%,${(p.depth - 0.4) * 0.04 + p.hl * 0.08})`;
+          const glowAlpha = dark
+            ? (p.depth - 0.4) * 0.04 + p.hl * 0.08
+            : (p.depth - 0.4) * 0.06 + p.hl * 0.1;
+          ctx.fillStyle = `hsla(${hue},${sat}%,${dark ? 60 : 50}%,${glowAlpha})`;
           ctx.fill();
         }
       }
@@ -141,7 +165,7 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
       ctx.setLineDash([3, 10]);
       ctx.beginPath();
       ctx.ellipse(cx, cy, R * 1.18, R * Math.abs(Math.cos(rx)) * 0.15, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(139,92,246,0.035)';
+      ctx.strokeStyle = dark ? 'rgba(139,92,246,0.035)' : 'rgba(139,92,246,0.08)';
       ctx.lineWidth = 1;
       ctx.stroke();
       ctx.restore();
@@ -173,17 +197,22 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
       className={`relative transition-all duration-[1.6s] ${
         isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.6]'
       }`}
-      style={{ transitionDelay: '600ms', transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)' }}
+      style={{
+        transitionDelay: '600ms',
+        transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',
+      }}
     >
-      <div className="absolute inset-0 m-auto w-3/5 h-3/5 rounded-full bg-violet-500/[0.08] blur-[100px]" />
-      <canvas ref={canvasRef} className="w-[400px] h-[400px] xl:w-[500px] xl:h-[500px] 2xl:w-[560px] 2xl:h-[560px]" />
+      <div className="absolute inset-0 m-auto w-3/5 h-3/5 rounded-full bg-violet-500/[0.08] dark:bg-violet-500/[0.08] blur-[100px]" />
+      <canvas
+        ref={canvasRef}
+        className="w-[400px] h-[400px] xl:w-[500px] xl:h-[500px] 2xl:w-[560px] 2xl:h-[560px]"
+      />
     </div>
   );
 };
 
 /* ═══════════════════════════════════════════════════════════════
    LINE REVEAL
-   Whole line slides up from below — works with gradient text.
    ═══════════════════════════════════════════════════════════════ */
 const LineReveal: React.FC<{
   children: React.ReactNode;
@@ -209,7 +238,6 @@ const LineReveal: React.FC<{
 
 /* ═══════════════════════════════════════════════════════════════
    ROLE CAROUSEL
-   Vertical slide with gradient text
    ═══════════════════════════════════════════════════════════════ */
 const RoleCarousel: React.FC<{ roles: string[] }> = ({ roles }) => {
   const [idx, setIdx] = useState(0);
@@ -236,7 +264,7 @@ const RoleCarousel: React.FC<{ roles: string[] }> = ({ roles }) => {
           transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',
         }}
       >
-        <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent font-bold whitespace-nowrap">
+        <span className="bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 dark:from-cyan-400 dark:via-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent font-bold whitespace-nowrap">
           {roles[idx]}
         </span>
       </span>
@@ -313,7 +341,10 @@ const MagneticButton: React.FC<{
       rel={external ? 'noopener noreferrer' : undefined}
       style={{
         transform: `translate(${pos.x}px, ${pos.y}px)`,
-        transition: pos.x === 0 ? 'transform 0.5s cubic-bezier(0.16,1,0.3,1)' : 'transform 0.1s ease-out',
+        transition:
+          pos.x === 0
+            ? 'transform 0.5s cubic-bezier(0.16,1,0.3,1)'
+            : 'transform 0.1s ease-out',
       }}
       onMouseMove={onMove}
       onMouseLeave={() => setPos({ x: 0, y: 0 })}
@@ -330,8 +361,14 @@ const Hero: React.FC = () => {
   const heroRef = useRef<HTMLElement>(null);
   const [vis, setVis] = useState(false);
   const [mp, setMp] = useState({ x: 0, y: 0 });
+  const [isDark, setIsDark] = useState(true);
 
-  const roles = ['Full Stack Developer', 'Software Engineer', 'MERN Stack Developer', 'Problem Solver'];
+  const roles = [
+    'Full Stack Developer',
+    'Software Engineer',
+    'MERN Stack Developer',
+    'Problem Solver',
+  ];
 
   const stats = [
     { icon: <Rocket size={14} />, v: 10, s: '+', l: 'Projects', g: 'from-cyan-500 to-blue-500' },
@@ -339,6 +376,30 @@ const Hero: React.FC = () => {
     { icon: <Code2 size={14} />, v: 200, s: '+', l: 'Contributions', g: 'from-fuchsia-500 to-pink-500' },
     { icon: <Coffee size={14} />, v: 999, s: '+', l: 'Chai Cups', g: 'from-amber-500 to-orange-500' },
   ];
+
+  // Detect dark mode changes
+  useEffect(() => {
+    const checkDark = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDark();
+
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    // Also listen for system preference changes
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => checkDark();
+    mq.addEventListener('change', handler);
+
+    return () => {
+      observer.disconnect();
+      mq.removeEventListener('change', handler);
+    };
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setVis(true), 200);
@@ -359,12 +420,16 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <section id="home" ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden bg-[#07070e]">
+    <section
+      id="home"
+      ref={heroRef}
+      className="relative min-h-screen flex items-center overflow-hidden bg-gray-50 dark:bg-[#07070e] transition-colors duration-500"
+    >
       {/* ── BG Layers ──────────────────────────────── */}
 
       {/* Animated gradient orbs */}
       <div
-        className="absolute w-[700px] h-[700px] rounded-full bg-cyan-500/[0.05] blur-[180px] pointer-events-none"
+        className="absolute w-[700px] h-[700px] rounded-full bg-cyan-400/[0.08] dark:bg-cyan-500/[0.05] blur-[180px] pointer-events-none transition-colors duration-500"
         style={{
           top: '-15%',
           left: '-8%',
@@ -374,7 +439,7 @@ const Hero: React.FC = () => {
         }}
       />
       <div
-        className="absolute w-[600px] h-[600px] rounded-full bg-violet-500/[0.06] blur-[160px] pointer-events-none"
+        className="absolute w-[600px] h-[600px] rounded-full bg-violet-400/[0.08] dark:bg-violet-500/[0.06] blur-[160px] pointer-events-none transition-colors duration-500"
         style={{
           top: '25%',
           right: '-12%',
@@ -384,7 +449,7 @@ const Hero: React.FC = () => {
         }}
       />
       <div
-        className="absolute w-[500px] h-[500px] rounded-full bg-fuchsia-500/[0.04] blur-[160px] pointer-events-none"
+        className="absolute w-[500px] h-[500px] rounded-full bg-fuchsia-400/[0.06] dark:bg-fuchsia-500/[0.04] blur-[160px] pointer-events-none transition-colors duration-500"
         style={{
           bottom: '-8%',
           left: '30%',
@@ -396,24 +461,36 @@ const Hero: React.FC = () => {
 
       {/* Dot grid */}
       <div
-        className="absolute inset-0 opacity-[0.035] pointer-events-none"
+        className="absolute inset-0 opacity-[0.04] dark:opacity-[0.035] pointer-events-none"
         style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)',
+          backgroundImage:
+            'radial-gradient(circle, rgba(100,100,120,0.8) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
         }}
       />
 
       {/* Vignette */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, #07070e 100%)' }}
+        className="absolute inset-0 pointer-events-none dark:block hidden"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, #07070e 100%)',
+        }}
+      />
+      <div
+        className="absolute inset-0 pointer-events-none dark:hidden block"
+        style={{
+          background:
+            'radial-gradient(ellipse at 50% 50%, transparent 40%, rgb(249 250 251) 100%)',
+        }}
       />
 
       {/* Cursor spotlight */}
       <div
         className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 60%)',
+          background: isDark
+            ? 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 60%)'
+            : 'radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 60%)',
           left: `calc(50% + ${mp.x * 350}px - 300px)`,
           top: `calc(50% + ${mp.y * 350}px - 300px)`,
           transition: 'left 2s ease-out, top 2s ease-out',
@@ -431,25 +508,29 @@ const Hero: React.FC = () => {
                 vis ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
               }`}
             >
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.07]">
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gray-100/80 dark:bg-white/[0.04] backdrop-blur-xl border border-gray-200 dark:border-white/[0.07] transition-colors duration-500">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative rounded-full h-2 w-2 bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.6)]" />
                 </span>
-                <span className="text-xs font-medium text-gray-400">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Open to opportunities
                 </span>
-                <span className="text-gray-700 text-xs">·</span>
-                <span className="text-xs text-gray-500 font-mono">Bangalore, IN</span>
+                <span className="text-gray-300 dark:text-gray-700 text-xs">·</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+                  Bangalore, IN
+                </span>
               </div>
             </div>
 
             {/* Greeting */}
             <LineReveal delay={250} isVisible={vis}>
-              <p className="text-base md:text-lg text-gray-500 font-medium tracking-wide">
+              <p className="text-base md:text-lg text-gray-400 dark:text-gray-500 font-medium tracking-wide">
                 <span
                   className="inline-block mr-2"
-                  style={{ animation: vis ? 'wave 2.5s ease-in-out infinite' : 'none' }}
+                  style={{
+                    animation: vis ? 'wave 2.5s ease-in-out infinite' : 'none',
+                  }}
                 >
                   👋
                 </span>
@@ -461,10 +542,12 @@ const Hero: React.FC = () => {
             <div>
               <h1 className="text-[3.6rem] sm:text-7xl lg:text-[5.2rem] xl:text-[6rem] font-black tracking-[-0.04em] leading-[0.92]">
                 <LineReveal delay={400} isVisible={vis}>
-                  <span className="block text-white">ABHISHEK</span>
+                  <span className="block text-gray-900 dark:text-white transition-colors duration-500">
+                    ABHISHEK
+                  </span>
                 </LineReveal>
                 <LineReveal delay={550} isVisible={vis}>
-                  <span className="block bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+                  <span className="block bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 dark:from-cyan-400 dark:via-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
                     KUMAR SINHA
                   </span>
                 </LineReveal>
@@ -484,16 +567,19 @@ const Hero: React.FC = () => {
             {/* Role */}
             <LineReveal delay={750} isVisible={vis}>
               <p className="text-xl md:text-2xl">
-                <span className="text-gray-600 font-mono text-sm mr-2">{'>'}</span>
+                <span className="text-gray-300 dark:text-gray-600 font-mono text-sm mr-2">
+                  {'>'}
+                </span>
                 <RoleCarousel roles={roles} />
               </p>
             </LineReveal>
 
             {/* Description */}
             <LineReveal delay={900} isVisible={vis}>
-              <p className="text-[15px] text-gray-400/90 leading-relaxed max-w-lg">
-                A passionate developer crafting full-stack solutions with modern technologies.
-                Turning complex challenges into elegant, high-performing digital experiences.
+              <p className="text-[15px] text-gray-500 dark:text-gray-400/90 leading-relaxed max-w-lg transition-colors duration-500">
+                A passionate developer crafting full-stack solutions with modern
+                technologies. Turning complex challenges into elegant, high-performing
+                digital experiences.
               </p>
             </LineReveal>
 
@@ -528,11 +614,11 @@ const Hero: React.FC = () => {
               {/* Secondary */}
               <MagneticButton
                 href="#contact"
-                className="group inline-flex items-center gap-2 px-8 py-[14px] rounded-full font-bold text-sm text-gray-300 border border-white/[0.08] bg-white/[0.02] hover:border-violet-500/30 hover:bg-violet-500/[0.06] hover:text-white transition-all duration-300"
+                className="group inline-flex items-center gap-2 px-8 py-[14px] rounded-full font-bold text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/[0.08] bg-white/80 dark:bg-white/[0.02] hover:border-violet-400 dark:hover:border-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-500/[0.06] hover:text-violet-600 dark:hover:text-white transition-all duration-300"
               >
                 <Sparkles
                   size={15}
-                  className="text-violet-400 group-hover:rotate-12 transition-transform duration-300"
+                  className="text-violet-500 dark:text-violet-400 group-hover:rotate-12 transition-transform duration-300"
                 />
                 Let&apos;s Connect
               </MagneticButton>
@@ -542,7 +628,7 @@ const Hero: React.FC = () => {
                 href="/resume.pdf"
                 download="Abhishek_Sinha_Resume.pdf"
                 external
-                className="group inline-flex items-center gap-1.5 px-5 py-[14px] rounded-full text-sm text-gray-500 hover:text-cyan-400 transition-colors duration-300"
+                className="group inline-flex items-center gap-1.5 px-5 py-[14px] rounded-full text-sm text-gray-400 dark:text-gray-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors duration-300"
               >
                 <Download
                   size={14}
@@ -560,9 +646,21 @@ const Hero: React.FC = () => {
               style={{ transitionDelay: '1200ms' }}
             >
               {[
-                { href: 'https://github.com/AbhishekSinhaa17', icon: <Github size={16} />, l: 'GitHub' },
-                { href: 'https://www.linkedin.com/in/abhisheksinha17', icon: <Linkedin size={16} />, l: 'LinkedIn' },
-                { href: 'https://x.com/Abhishe85338077', icon: <Twitter size={16} />, l: 'Twitter' },
+                {
+                  href: 'https://github.com/AbhishekSinhaa17',
+                  icon: <Github size={16} />,
+                  l: 'GitHub',
+                },
+                {
+                  href: 'https://www.linkedin.com/in/abhisheksinha17',
+                  icon: <Linkedin size={16} />,
+                  l: 'LinkedIn',
+                },
+                {
+                  href: 'https://x.com/Abhishe85338077',
+                  icon: <Twitter size={16} />,
+                  l: 'Twitter',
+                },
               ].map((s) => (
                 <a
                   key={s.l}
@@ -570,15 +668,15 @@ const Hero: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.l}
-                  className="group w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white border border-transparent hover:border-white/[0.08] hover:bg-white/[0.03] transition-all duration-300 hover:scale-110"
+                  className="group w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-gray-200 dark:hover:border-white/[0.08] hover:bg-gray-100 dark:hover:bg-white/[0.03] transition-all duration-300 hover:scale-110"
                 >
                   {s.icon}
                 </a>
               ))}
-              <div className="w-px h-5 bg-white/[0.06] mx-2" />
+              <div className="w-px h-5 bg-gray-200 dark:bg-white/[0.06] mx-2 transition-colors duration-500" />
               <a
                 href="mailto:abhiks1710@gmail.com"
-                className="flex items-center gap-1.5 text-xs font-mono text-gray-600 hover:text-cyan-400 transition-colors duration-300"
+                className="flex items-center gap-1.5 text-xs font-mono text-gray-400 dark:text-gray-600 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors duration-300"
               >
                 <Mail size={11} />
                 abhiks1710@gmail.com
@@ -587,16 +685,16 @@ const Hero: React.FC = () => {
 
             {/* Terminal */}
             <div
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04] font-mono text-xs transition-all duration-700 ${
+              className={`flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-100/80 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.04] font-mono text-xs transition-all duration-700 ${
                 vis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
               style={{ transitionDelay: '1350ms' }}
             >
               <Terminal size={13} className="text-emerald-500 flex-shrink-0" />
-              <span className="text-emerald-500">~$</span>
-              <span className="text-gray-500">
+              <span className="text-emerald-600 dark:text-emerald-500">~$</span>
+              <span className="text-gray-500 dark:text-gray-500">
                 npx create-awesome-app{' '}
-                <span className="text-cyan-400">--by abhishek</span>
+                <span className="text-cyan-600 dark:text-cyan-400">--by abhishek</span>
               </span>
               <span
                 className="w-1.5 h-4 bg-emerald-500 rounded-sm ml-auto flex-shrink-0"
@@ -614,10 +712,10 @@ const Hero: React.FC = () => {
               {stats.map((d, i) => (
                 <div
                   key={d.l}
-                  className="group relative rounded-2xl bg-white/[0.02] border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-all duration-300 hover:scale-[1.04] cursor-default overflow-hidden"
+                  className="group relative rounded-2xl bg-white/80 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.05] p-3.5 hover:border-gray-300 dark:hover:border-white/[0.1] transition-all duration-300 hover:scale-[1.04] cursor-default overflow-hidden shadow-sm dark:shadow-none"
                 >
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${d.g} opacity-0 group-hover:opacity-[0.05] transition-opacity duration-500`}
+                    className={`absolute inset-0 bg-gradient-to-br ${d.g} opacity-0 group-hover:opacity-[0.08] dark:group-hover:opacity-[0.05] transition-opacity duration-500`}
                   />
                   <div className="relative">
                     <div
@@ -625,10 +723,10 @@ const Hero: React.FC = () => {
                     >
                       {d.icon}
                     </div>
-                    <p className="text-xl font-black text-white leading-none mb-0.5">
+                    <p className="text-xl font-black text-gray-900 dark:text-white leading-none mb-0.5 transition-colors duration-500">
                       <Counter to={d.v} suffix={d.s} isVisible={vis} delay={1700 + i * 100} />
                     </p>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-500">
+                    <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
                       {d.l}
                     </p>
                   </div>
@@ -639,7 +737,7 @@ const Hero: React.FC = () => {
 
           {/* ── RIGHT — Globe ────────────────────── */}
           <div className="lg:col-span-6 xl:col-span-7 hidden lg:flex items-center justify-center">
-            <InteractiveGlobe isVisible={vis} />
+            <InteractiveGlobe isVisible={vis} isDark={isDark} />
           </div>
         </div>
       </div>
@@ -650,12 +748,12 @@ const Hero: React.FC = () => {
         className="group absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
         aria-label="Scroll down"
       >
-        <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-gray-600 group-hover:text-cyan-400 transition-colors duration-300">
+        <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-gray-400 dark:text-gray-600 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors duration-300">
           Explore
         </span>
-        <div className="relative w-[2px] h-14 bg-white/[0.05] rounded-full overflow-hidden">
+        <div className="relative w-[2px] h-14 bg-gray-200 dark:bg-white/[0.05] rounded-full overflow-hidden transition-colors duration-500">
           <div
-            className="absolute top-0 w-full rounded-full bg-gradient-to-b from-cyan-400 via-violet-400 to-transparent"
+            className="absolute top-0 w-full rounded-full bg-gradient-to-b from-cyan-500 via-violet-500 to-transparent dark:from-cyan-400 dark:via-violet-400"
             style={{ height: '40%', animation: 'beam 2.4s ease-in-out infinite' }}
           />
         </div>

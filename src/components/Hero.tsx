@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   Github,
   Linkedin,
@@ -12,7 +12,8 @@ import {
   Code2,
   Layers,
   Mail,
-} from 'lucide-react';
+} from "lucide-react";
+
 
 /* ═══════════════════════════════════════════════════════════════
    INTERACTIVE WIREFRAME GLOBE
@@ -33,7 +34,7 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean; isDark: boolean }> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let raf: number;
@@ -78,7 +79,7 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean; isDark: boolean }> = ({
 
       const cx = w / 2,
         cy = h / 2;
-      const R = Math.min(w, h) * 0.4;
+      const R = Math.min(w, h) * 0.44;
       const mx = (mouseRef.current.x - 0.5) * 0.8;
       const my = (mouseRef.current.y - 0.5) * 0.5;
       const ry = time + mx,
@@ -164,8 +165,18 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean; isDark: boolean }> = ({
       ctx.save();
       ctx.setLineDash([3, 10]);
       ctx.beginPath();
-      ctx.ellipse(cx, cy, R * 1.18, R * Math.abs(Math.cos(rx)) * 0.15, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = dark ? 'rgba(139,92,246,0.035)' : 'rgba(139,92,246,0.08)';
+      ctx.ellipse(
+        cx,
+        cy,
+        R * 1.18,
+        R * Math.abs(Math.cos(rx)) * 0.15,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.strokeStyle = dark
+        ? "rgba(139,92,246,0.035)"
+        : "rgba(139,92,246,0.08)";
       ctx.lineWidth = 1;
       ctx.stroke();
       ctx.restore();
@@ -188,24 +199,24 @@ const InteractiveGlobe: React.FC<{ isVisible: boolean; isDark: boolean }> = ({
       };
       canvasMouse.current = { ...mouseRef.current };
     };
-    window.addEventListener('mousemove', onMove);
-    return () => window.removeEventListener('mousemove', onMove);
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
   }, []);
 
   return (
     <div
       className={`relative transition-all duration-[1.6s] ${
-        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.6]'
+        isVisible ? "opacity-100 scale-100" : "opacity-0 scale-[0.6]"
       }`}
       style={{
-        transitionDelay: '600ms',
-        transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',
+        transitionDelay: "600ms",
+        transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
       }}
     >
-      <div className="absolute inset-0 m-auto w-3/5 h-3/5 rounded-full bg-violet-500/[0.08] dark:bg-violet-500/[0.08] blur-[100px]" />
+      <div className="absolute inset-0 m-auto w-4/5 h-4/5 rounded-full bg-violet-500/[0.08] dark:bg-violet-500/[0.08] blur-[120px]" />
       <canvas
         ref={canvasRef}
-        className="w-[400px] h-[400px] xl:w-[500px] xl:h-[500px] 2xl:w-[560px] 2xl:h-[560px]"
+        className="w-[480px] h-[480px] xl:w-[600px] xl:h-[600px] 2xl:w-[680px] 2xl:h-[680px]"
       />
     </div>
   );
@@ -223,11 +234,11 @@ const LineReveal: React.FC<{
   <div className="overflow-hidden">
     <div
       style={{
-        transform: isVisible ? 'translateY(0)' : 'translateY(115%)',
+        transform: isVisible ? "translateY(0)" : "translateY(115%)",
         opacity: isVisible ? 1 : 0,
-        transitionProperty: 'transform, opacity',
+        transitionProperty: "transform, opacity",
         transitionDuration: `${duration}ms`,
-        transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
         transitionDelay: `${delay}ms`,
       }}
     >
@@ -241,14 +252,14 @@ const LineReveal: React.FC<{
    ═══════════════════════════════════════════════════════════════ */
 const RoleCarousel: React.FC<{ roles: string[] }> = ({ roles }) => {
   const [idx, setIdx] = useState(0);
-  const [phase, setPhase] = useState<'in' | 'out'>('in');
+  const [phase, setPhase] = useState<"in" | "out">("in");
 
   useEffect(() => {
     const t = setInterval(() => {
-      setPhase('out');
+      setPhase("out");
       setTimeout(() => {
         setIdx((i) => (i + 1) % roles.length);
-        setPhase('in');
+        setPhase("in");
       }, 400);
     }, 3200);
     return () => clearInterval(t);
@@ -259,9 +270,9 @@ const RoleCarousel: React.FC<{ roles: string[] }> = ({ roles }) => {
       <span
         className="inline-block transition-all duration-500"
         style={{
-          transform: phase === 'out' ? 'translateY(-120%)' : 'translateY(0)',
-          opacity: phase === 'out' ? 0 : 1,
-          transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',
+          transform: phase === "out" ? "translateY(-120%)" : "translateY(0)",
+          opacity: phase === "out" ? 0 : 1,
+          transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
         }}
       >
         <span className="bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 dark:from-cyan-400 dark:via-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent font-bold whitespace-nowrap">
@@ -280,7 +291,7 @@ const Counter: React.FC<{
   suffix?: string;
   isVisible: boolean;
   delay?: number;
-}> = ({ to, suffix = '', isVisible, delay = 0 }) => {
+}> = ({ to, suffix = "", isVisible, delay = 0 }) => {
   const [v, setV] = useState(0);
   const ran = useRef(false);
 
@@ -317,7 +328,7 @@ const MagneticButton: React.FC<{
   className?: string;
   download?: string;
   external?: boolean;
-}> = ({ href, children, className = '', download, external }) => {
+}> = ({ href, children, className = "", download, external }) => {
   const ref = useRef<HTMLAnchorElement>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
@@ -337,14 +348,14 @@ const MagneticButton: React.FC<{
       href={href}
       className={className}
       download={download}
-      target={external ? '_blank' : undefined}
-      rel={external ? 'noopener noreferrer' : undefined}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
       style={{
         transform: `translate(${pos.x}px, ${pos.y}px)`,
         transition:
           pos.x === 0
-            ? 'transform 0.5s cubic-bezier(0.16,1,0.3,1)'
-            : 'transform 0.1s ease-out',
+            ? "transform 0.5s cubic-bezier(0.16,1,0.3,1)"
+            : "transform 0.1s ease-out",
       }}
       onMouseMove={onMove}
       onMouseLeave={() => setPos({ x: 0, y: 0 })}
@@ -364,40 +375,63 @@ const Hero: React.FC = () => {
   const [isDark, setIsDark] = useState(true);
 
   const roles = [
-    'Full Stack Developer',
-    'Software Engineer',
-    'MERN Stack Developer',
-    'Problem Solver',
+    "Full Stack Developer",
+    "Software Engineer",
+    "MERN Stack Developer",
+    "Problem Solver",
   ];
 
   const stats = [
-    { icon: <Rocket size={14} />, v: 10, s: '+', l: 'Projects', g: 'from-cyan-500 to-blue-500' },
-    { icon: <Layers size={14} />, v: 8, s: '+', l: 'Technologies', g: 'from-violet-500 to-purple-500' },
-    { icon: <Code2 size={14} />, v: 200, s: '+', l: 'Contributions', g: 'from-fuchsia-500 to-pink-500' },
-    { icon: <Coffee size={14} />, v: 999, s: '+', l: 'Chai Cups', g: 'from-amber-500 to-orange-500' },
+    {
+      icon: <Rocket size={14} />,
+      v: 10,
+      s: "+",
+      l: "Projects",
+      g: "from-cyan-500 to-blue-500",
+    },
+    {
+      icon: <Layers size={14} />,
+      v: 8,
+      s: "+",
+      l: "Technologies",
+      g: "from-violet-500 to-purple-500",
+    },
+    {
+      icon: <Code2 size={14} />,
+      v: 200,
+      s: "+",
+      l: "Contributions",
+      g: "from-fuchsia-500 to-pink-500",
+    },
+    {
+      icon: <Coffee size={14} />,
+      v: 999,
+      s: "+",
+      l: "Chai Cups",
+      g: "from-amber-500 to-orange-500",
+    },
   ];
 
   // Detect dark mode changes
   useEffect(() => {
     const checkDark = () => {
-      setIsDark(document.documentElement.classList.contains('dark'));
+      setIsDark(document.documentElement.classList.contains("dark"));
     };
     checkDark();
 
     const observer = new MutationObserver(checkDark);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class'],
+      attributeFilter: ["class"],
     });
 
-    // Also listen for system preference changes
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = () => checkDark();
-    mq.addEventListener('change', handler);
+    mq.addEventListener("change", handler);
 
     return () => {
       observer.disconnect();
-      mq.removeEventListener('change', handler);
+      mq.removeEventListener("change", handler);
     };
   }, []);
 
@@ -415,8 +449,8 @@ const Hero: React.FC = () => {
         y: (e.clientY - r.top) / r.height - 0.5,
       });
     };
-    window.addEventListener('mousemove', fn);
-    return () => window.removeEventListener('mousemove', fn);
+    window.addEventListener("mousemove", fn);
+    return () => window.removeEventListener("mousemove", fn);
   }, []);
 
   return (
@@ -429,71 +463,72 @@ const Hero: React.FC = () => {
 
       {/* Animated gradient orbs */}
       <div
-        className="absolute w-[700px] h-[700px] rounded-full bg-cyan-400/[0.08] dark:bg-cyan-500/[0.05] blur-[180px] pointer-events-none transition-colors duration-500"
+        className="absolute w-[700px] h-[700px] rounded-full bg-cyan-400/[0.08] dark:bg-cyan-500/[0.05] blur-[180px] pointer-events-none transition-colors duration-500 z-[1]"
         style={{
-          top: '-15%',
-          left: '-8%',
+          top: "-15%",
+          left: "-8%",
           transform: `translate(${mp.x * 50}px,${mp.y * 50}px)`,
-          transition: 'transform 4s ease-out',
-          animation: 'drift-1 16s ease-in-out infinite',
+          transition: "transform 4s ease-out",
+          animation: "drift-1 16s ease-in-out infinite",
         }}
       />
       <div
-        className="absolute w-[600px] h-[600px] rounded-full bg-violet-400/[0.08] dark:bg-violet-500/[0.06] blur-[160px] pointer-events-none transition-colors duration-500"
+        className="absolute w-[600px] h-[600px] rounded-full bg-violet-400/[0.08] dark:bg-violet-500/[0.06] blur-[160px] pointer-events-none transition-colors duration-500 z-[1]"
         style={{
-          top: '25%',
-          right: '-12%',
+          top: "25%",
+          right: "-12%",
           transform: `translate(${mp.x * -40}px,${mp.y * -40}px)`,
-          transition: 'transform 4s ease-out',
-          animation: 'drift-2 20s ease-in-out infinite',
+          transition: "transform 4s ease-out",
+          animation: "drift-2 20s ease-in-out infinite",
         }}
       />
       <div
-        className="absolute w-[500px] h-[500px] rounded-full bg-fuchsia-400/[0.06] dark:bg-fuchsia-500/[0.04] blur-[160px] pointer-events-none transition-colors duration-500"
+        className="absolute w-[500px] h-[500px] rounded-full bg-fuchsia-400/[0.06] dark:bg-fuchsia-500/[0.04] blur-[160px] pointer-events-none transition-colors duration-500 z-[1]"
         style={{
-          bottom: '-8%',
-          left: '30%',
+          bottom: "-8%",
+          left: "30%",
           transform: `translate(${mp.x * 30}px,${mp.y * 30}px)`,
-          transition: 'transform 4s ease-out',
-          animation: 'drift-3 22s ease-in-out infinite',
+          transition: "transform 4s ease-out",
+          animation: "drift-3 22s ease-in-out infinite",
         }}
       />
 
       {/* Dot grid */}
       <div
-        className="absolute inset-0 opacity-[0.04] dark:opacity-[0.035] pointer-events-none"
+        className="absolute inset-0 opacity-[0.04] dark:opacity-[0.035] pointer-events-none z-[2]"
         style={{
           backgroundImage:
-            'radial-gradient(circle, rgba(100,100,120,0.8) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
+            "radial-gradient(circle, rgba(100,100,120,0.8) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
         }}
       />
 
       {/* Vignette */}
       <div
-        className="absolute inset-0 pointer-events-none dark:block hidden"
+        className="absolute inset-0 pointer-events-none dark:block hidden z-[3]"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, #07070e 100%)',
+          background:
+            "radial-gradient(ellipse at 50% 50%, transparent 40%, #07070e 100%)",
         }}
       />
       <div
-        className="absolute inset-0 pointer-events-none dark:hidden block"
+        className="absolute inset-0 pointer-events-none dark:hidden block z-[3]"
         style={{
           background:
-            'radial-gradient(ellipse at 50% 50%, transparent 40%, rgb(249 250 251) 100%)',
+            "radial-gradient(ellipse at 50% 50%, transparent 40%, rgb(249 250 251) 100%)",
         }}
       />
 
       {/* Cursor spotlight */}
       <div
-        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
+        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none z-[4]"
         style={{
           background: isDark
-            ? 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 60%)'
-            : 'radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 60%)',
+            ? "radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 60%)"
+            : "radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 60%)",
           left: `calc(50% + ${mp.x * 350}px - 300px)`,
           top: `calc(50% + ${mp.y * 350}px - 300px)`,
-          transition: 'left 2s ease-out, top 2s ease-out',
+          transition: "left 2s ease-out, top 2s ease-out",
         }}
       />
 
@@ -505,7 +540,7 @@ const Hero: React.FC = () => {
             {/* Badge */}
             <div
               className={`transition-all duration-700 ${
-                vis ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
+                vis ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-8"
               }`}
             >
               <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gray-100/80 dark:bg-white/[0.04] backdrop-blur-xl border border-gray-200 dark:border-white/[0.07] transition-colors duration-500">
@@ -516,7 +551,9 @@ const Hero: React.FC = () => {
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   Open to opportunities
                 </span>
-                <span className="text-gray-300 dark:text-gray-700 text-xs">·</span>
+                <span className="text-gray-300 dark:text-gray-700 text-xs">
+                  ·
+                </span>
                 <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
                   Bangalore, IN
                 </span>
@@ -529,7 +566,7 @@ const Hero: React.FC = () => {
                 <span
                   className="inline-block mr-2"
                   style={{
-                    animation: vis ? 'wave 2.5s ease-in-out infinite' : 'none',
+                    animation: vis ? "wave 2.5s ease-in-out infinite" : "none",
                   }}
                 >
                   👋
@@ -557,9 +594,9 @@ const Hero: React.FC = () => {
               <div
                 className="h-[3px] mt-3 rounded-full bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 origin-left"
                 style={{
-                  transform: vis ? 'scaleX(1)' : 'scaleX(0)',
+                  transform: vis ? "scaleX(1)" : "scaleX(0)",
                   width: 120,
-                  transition: 'transform 1s cubic-bezier(0.16,1,0.3,1) 0.9s',
+                  transition: "transform 1s cubic-bezier(0.16,1,0.3,1) 0.9s",
                 }}
               />
             </div>
@@ -568,7 +605,7 @@ const Hero: React.FC = () => {
             <LineReveal delay={750} isVisible={vis}>
               <p className="text-xl md:text-2xl">
                 <span className="text-gray-300 dark:text-gray-600 font-mono text-sm mr-2">
-                  {'>'}
+                  {">"}
                 </span>
                 <RoleCarousel roles={roles} />
               </p>
@@ -578,17 +615,17 @@ const Hero: React.FC = () => {
             <LineReveal delay={900} isVisible={vis}>
               <p className="text-[15px] text-gray-500 dark:text-gray-400/90 leading-relaxed max-w-lg transition-colors duration-500">
                 A passionate developer crafting full-stack solutions with modern
-                technologies. Turning complex challenges into elegant, high-performing
-                digital experiences.
+                technologies. Turning complex challenges into elegant,
+                high-performing digital experiences.
               </p>
             </LineReveal>
 
             {/* CTAs */}
             <div
               className={`flex flex-wrap items-center gap-3 transition-all duration-700 ${
-                vis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                vis ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               }`}
-              style={{ transitionDelay: '1050ms' }}
+              style={{ transitionDelay: "1050ms" }}
             >
               {/* Primary */}
               <MagneticButton
@@ -641,25 +678,25 @@ const Hero: React.FC = () => {
             {/* Socials */}
             <div
               className={`flex items-center gap-1 transition-all duration-700 ${
-                vis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                vis ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               }`}
-              style={{ transitionDelay: '1200ms' }}
+              style={{ transitionDelay: "1200ms" }}
             >
               {[
                 {
-                  href: 'https://github.com/AbhishekSinhaa17',
+                  href: "https://github.com/AbhishekSinhaa17",
                   icon: <Github size={16} />,
-                  l: 'GitHub',
+                  l: "GitHub",
                 },
                 {
-                  href: 'https://www.linkedin.com/in/abhisheksinha17',
+                  href: "https://www.linkedin.com/in/abhisheksinha17",
                   icon: <Linkedin size={16} />,
-                  l: 'LinkedIn',
+                  l: "LinkedIn",
                 },
                 {
-                  href: 'https://x.com/Abhishe85338077',
+                  href: "https://x.com/Abhishe85338077",
                   icon: <Twitter size={16} />,
-                  l: 'Twitter',
+                  l: "Twitter",
                 },
               ].map((s) => (
                 <a
@@ -686,28 +723,30 @@ const Hero: React.FC = () => {
             {/* Terminal */}
             <div
               className={`flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-100/80 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.04] font-mono text-xs transition-all duration-700 ${
-                vis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                vis ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               }`}
-              style={{ transitionDelay: '1350ms' }}
+              style={{ transitionDelay: "1350ms" }}
             >
               <Terminal size={13} className="text-emerald-500 flex-shrink-0" />
               <span className="text-emerald-600 dark:text-emerald-500">~$</span>
               <span className="text-gray-500 dark:text-gray-500">
-                npx create-awesome-app{' '}
-                <span className="text-cyan-600 dark:text-cyan-400">--by abhishek</span>
+                npx create-awesome-app{" "}
+                <span className="text-cyan-600 dark:text-cyan-400">
+                  --by abhishek
+                </span>
               </span>
               <span
                 className="w-1.5 h-4 bg-emerald-500 rounded-sm ml-auto flex-shrink-0"
-                style={{ animation: 'blink 1s step-end infinite' }}
+                style={{ animation: "blink 1s step-end infinite" }}
               />
             </div>
 
             {/* Stats */}
             <div
               className={`grid grid-cols-2 sm:grid-cols-4 gap-2.5 transition-all duration-700 ${
-                vis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                vis ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               }`}
-              style={{ transitionDelay: '1500ms' }}
+              style={{ transitionDelay: "1500ms" }}
             >
               {stats.map((d, i) => (
                 <div
@@ -724,7 +763,12 @@ const Hero: React.FC = () => {
                       {d.icon}
                     </div>
                     <p className="text-xl font-black text-gray-900 dark:text-white leading-none mb-0.5 transition-colors duration-500">
-                      <Counter to={d.v} suffix={d.s} isVisible={vis} delay={1700 + i * 100} />
+                      <Counter
+                        to={d.v}
+                        suffix={d.s}
+                        isVisible={vis}
+                        delay={1700 + i * 100}
+                      />
                     </p>
                     <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
                       {d.l}
@@ -736,7 +780,7 @@ const Hero: React.FC = () => {
           </div>
 
           {/* ── RIGHT — Globe ────────────────────── */}
-          <div className="lg:col-span-6 xl:col-span-7 hidden lg:flex items-center justify-center">
+          <div className="lg:col-span-6 xl:col-span-7 hidden lg:flex items-center justify-center lg:-translate-y-12">
             <InteractiveGlobe isVisible={vis} isDark={isDark} />
           </div>
         </div>
@@ -745,7 +789,7 @@ const Hero: React.FC = () => {
       {/* ── Scroll Indicator ───────────────────────── */}
       <a
         href="#about"
-        className="group absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
+        className="group absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-10"
         aria-label="Scroll down"
       >
         <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-gray-400 dark:text-gray-600 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors duration-300">
@@ -754,7 +798,10 @@ const Hero: React.FC = () => {
         <div className="relative w-[2px] h-14 bg-gray-200 dark:bg-white/[0.05] rounded-full overflow-hidden transition-colors duration-500">
           <div
             className="absolute top-0 w-full rounded-full bg-gradient-to-b from-cyan-500 via-violet-500 to-transparent dark:from-cyan-400 dark:via-violet-400"
-            style={{ height: '40%', animation: 'beam 2.4s ease-in-out infinite' }}
+            style={{
+              height: "40%",
+              animation: "beam 2.4s ease-in-out infinite",
+            }}
           />
         </div>
       </a>
